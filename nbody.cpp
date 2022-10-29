@@ -14,12 +14,20 @@
 #define _USE_MATH_DEFINES // https://docs.microsoft.com/en-us/cpp/c-runtime-library/math-constants?view=msvc-160
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 
 // these values are constant and not allowed to be changed
 const double SOLAR_MASS = 4 * M_PI * M_PI;
 const double DAYS_PER_YEAR = 365.24;
 const unsigned int BODIES_COUNT = 5;
+
+void write_csv (unsigned int i, std::string name, std::string x, std::string y, std::string z) {
+    std::fstream fout;
+    fout.open("positions_cpp.csv", std::ios::app);
+    fout << i << ';' << name << ';' << x << ';' << y << ';' << z << '\n';
+    fout.close();
+}
 
 
 class vector3d {
@@ -99,6 +107,11 @@ void advance(body state[BODIES_COUNT], double dt) {
      * We precompute the quantity (r_i - r_j)
      */
     // 2D array (to hold: BODIES_COUNT x BODIES_COUNT elements)
+    std::fstream fout;
+    fout.open("positions_cpp.csv", std::ios::app);
+    fout << 'Step number' << ';' << 'Body' << ';' << 'Position x' << ';' << 'Position y' << ';' << 'Position z' << '\n';
+    fout.close();
+
     vector3d rij[BODIES_COUNT][BODIES_COUNT];
 
     for (unsigned int i = 0; i < BODIES_COUNT; ++i) {
@@ -133,6 +146,9 @@ void advance(body state[BODIES_COUNT], double dt) {
      */
     for (unsigned int i = 0; i < BODIES_COUNT; ++i) {
         state[i].position += state[i].velocity * dt;
+        write_csv(i, state[i].name, std::to_string(state[i].position.x),
+                  std::to_string(state[i].position.y),
+                  std::to_string(state[i].position.z));
     }
 }
 
