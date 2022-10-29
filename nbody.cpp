@@ -15,8 +15,9 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
-
+clock_t tStart = clock();
 // these values are constant and not allowed to be changed
 const double SOLAR_MASS = 4 * M_PI * M_PI;
 const double DAYS_PER_YEAR = 365.24;
@@ -102,15 +103,13 @@ public:
 };
 
 
+
 void advance(body state[BODIES_COUNT], double dt) {
     /*
      * We precompute the quantity (r_i - r_j)
      */
     // 2D array (to hold: BODIES_COUNT x BODIES_COUNT elements)
-    std::fstream fout;
-    fout.open("positions_cpp.csv", std::ios::app);
-    fout << "Body;Position x;Position y;Position z\n";
-    fout.close();
+
 
     vector3d rij[BODIES_COUNT][BODIES_COUNT];
 
@@ -265,11 +264,16 @@ int main(int argc, char **argv) {
         const unsigned int n = atoi(argv[1]);
         offset_momentum(state);
         std::cout << energy(state) << std::endl;
+        std::fstream fout;
+        fout.open("positions_cpp.csv", std::ios::app);
+        fout << "Body;Position x;Position y;Position z\n";
+        fout.close();
 
         for (int i = 0; i < n; ++i) {
             advance(state, 0.01);
         }
         std::cout << energy(state) << std::endl;
+        printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
         return EXIT_SUCCESS;
     }
 }
