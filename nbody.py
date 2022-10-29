@@ -9,6 +9,7 @@
 # modified by Andriy Misyura
 # slightly modified by bmmeijers
 
+import csv
 import sys
 from math import sqrt, pi as PI
 
