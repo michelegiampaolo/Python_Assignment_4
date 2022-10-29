@@ -22,10 +22,10 @@ const double SOLAR_MASS = 4 * M_PI * M_PI;
 const double DAYS_PER_YEAR = 365.24;
 const unsigned int BODIES_COUNT = 5;
 
-void write_csv (unsigned int i, std::string name, std::string x, std::string y, std::string z) {
+void write_csv (std::string name, std::string x, std::string y, std::string z) {
     std::fstream fout;
     fout.open("positions_cpp.csv", std::ios::app);
-    fout << i << ';' << name << ';' << x << ';' << y << ';' << z << '\n';
+    fout << name << ';' << x << ';' << y << ';' << z << '\n';
     fout.close();
 }
 
@@ -109,7 +109,7 @@ void advance(body state[BODIES_COUNT], double dt) {
     // 2D array (to hold: BODIES_COUNT x BODIES_COUNT elements)
     std::fstream fout;
     fout.open("positions_cpp.csv", std::ios::app);
-    fout << 'Step number' << ';' << 'Body' << ';' << 'Position x' << ';' << 'Position y' << ';' << 'Position z' << '\n';
+    fout << "Body;Position x;Position y;Position z\n";
     fout.close();
 
     vector3d rij[BODIES_COUNT][BODIES_COUNT];
@@ -146,7 +146,7 @@ void advance(body state[BODIES_COUNT], double dt) {
      */
     for (unsigned int i = 0; i < BODIES_COUNT; ++i) {
         state[i].position += state[i].velocity * dt;
-        write_csv(i, state[i].name, std::to_string(state[i].position.x),
+        write_csv(state[i].name, std::to_string(state[i].position.x),
                   std::to_string(state[i].position.y),
                   std::to_string(state[i].position.z));
     }
@@ -265,6 +265,7 @@ int main(int argc, char **argv) {
         const unsigned int n = atoi(argv[1]);
         offset_momentum(state);
         std::cout << energy(state) << std::endl;
+
         for (int i = 0; i < n; ++i) {
             advance(state, 0.01);
         }
