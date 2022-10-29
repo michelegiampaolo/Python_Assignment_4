@@ -112,7 +112,7 @@ def offset_momentum(ref, bodies=SYSTEM, px=0.0, py=0.0, pz=0.0):
     v[0] = px / m
     v[1] = py / m
     v[2] = pz / m
-
+print(BODIES)
 
 def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
     with open(filename, 'w', newline="") as table:
@@ -121,10 +121,12 @@ def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
         writer.writerow(header)
         for i in range(n):
             for j in bodies:
-                position = [i + 1, j, bodies[j][0][0], bodies[j][0][1], bodies[j][0][2]]
+                position = [i + 1, j, str(bodies[j][0][0]), str(bodies[j][0][1]), str(bodies[j][0][2])]
                 writer.writerow(position)
                 print(position)
             advance(dt, n, system, pairs)
+
+new_csv_advance(0.01, 3, "positions.csv")
 
 
 def main(n, ref="sun"):
