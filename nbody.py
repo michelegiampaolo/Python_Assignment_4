@@ -9,15 +9,17 @@
 # modified by Andriy Misyura
 # slightly modified by bmmeijers
 
-import csv
+import time
 import sys
 from math import sqrt, pi as PI
+
+start = time.time()
 
 
 def combinations(l):
     result = []
     for x in range(len(l) - 1):
-        ls = l[x + 1 :]
+        ls = l[x + 1:]
         for y in ls:
             result.append((l[x][0], l[x][1], l[x][2], y[0], y[1], y[2]))
     return result
@@ -68,28 +70,36 @@ BODIES = {
 
 SYSTEM = tuple(BODIES.values())
 PAIRS = tuple(combinations(SYSTEM))
+planets = tuple(BODIES.keys())
 
 
-def advance(dt, n, bodies=SYSTEM, pairs=PAIRS):
-    for i in range(n):
-        for ([x1, y1, z1], v1, m1, [x2, y2, z2], v2, m2) in pairs:
-            dx = x1 - x2
-            dy = y1 - y2
-            dz = z1 - z2
-            dist = sqrt(dx * dx + dy * dy + dz * dz)
-            mag = dt / (dist * dist * dist)
-            b1m = m1 * mag
-            b2m = m2 * mag
-            v1[0] -= dx * b2m
-            v1[1] -= dy * b2m
-            v1[2] -= dz * b2m
-            v2[2] += dz * b1m
-            v2[1] += dy * b1m
-            v2[0] += dx * b1m
-        for (r, [vx, vy, vz], m) in bodies:
-            r[0] += dt * vx
-            r[1] += dt * vy
-            r[2] += dt * vz
+def advance(dt, n, filename, bodies=SYSTEM, pairs=PAIRS):
+    with open(filename, 'w') as table:
+        header = ("Step number;Body;Position x;Position y;Position z\n")
+        table.write(header)
+        for i in range(n):
+            for ([x1, y1, z1], v1, m1, [x2, y2, z2], v2, m2) in pairs:
+                dx = x1 - x2
+                dy = y1 - y2
+                dz = z1 - z2
+                dist = sqrt(dx * dx + dy * dy + dz * dz)
+                mag = dt / (dist * dist * dist)
+                b1m = m1 * mag
+                b2m = m2 * mag
+                v1[0] -= dx * b2m
+                v1[1] -= dy * b2m
+                v1[2] -= dz * b2m
+                v2[2] += dz * b1m
+                v2[1] += dy * b1m
+                v2[0] += dx * b1m
+            for planet_no, (r, [vx, vy, vz], m) in enumerate(bodies):
+                r[0] += dt * vx
+                r[1] += dt * vy
+                r[2] += dt * vz
+
+            for name, (r, v, m) in BODIES.items():
+                table.write("{};{};{};{};{}\n".format(i, name, r[0], r[1], r[2]))
+
 
 
 def report_energy(bodies=SYSTEM, pairs=PAIRS, e=0.0):
@@ -113,27 +123,40 @@ def offset_momentum(ref, bodies=SYSTEM, px=0.0, py=0.0, pz=0.0):
     v[1] = py / m
     v[2] = pz / m
 
-def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
-    with open(filename, 'w', newline="") as table:
-        writer = csv.writer(table, delimiter=";")
-        header = ["Step number","Body", "Position x", "Position y", "Position z"]
-        writer.writerow(header)
-        for i in range(n):
-            for j in bodies:
-                position = [i + 1, j, str(bodies[j][0][0]), str(bodies[j][0][1]), str(bodies[j][0][2])]
-                writer.writerow(position)
-                # print(position)
-            advance(dt, n, system, pairs)
+
+# def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
+#     with open(filename, 'w', newline="") as table:
+#         writer = csv.writer(table, delimiter=";")
+#         header = ["Step number", "Body", "Position x", "Position y", "Position z"]
+#         writer.writerow(header)
+#         for i in range(n):
+#             for j in bodies:
+#                 position = [i + 1, j, str(bodies[j][0][0]), str(bodies[j][0][1]), str(bodies[j][0][2])]
+#                 writer.writerow(position)
+#                 # print(position)
+#             advance(dt, n, system, pairs)
+
+# def write_csv(filename, positions):
+#     with open(filename, 'w', newline='') as table:
+#         writer = csv.writer(table, delimiter=';')
+#         header = ["Step number", "Body", "Position x", "Position y", "Position z"]
+#         writer.writerow(header)
+#         writer.writerows(positions)
+
 
 # new_csv_advance(0.01, 3, "positions.csv")
 
 
+advance(0.01, 100, "test_{}.csv".format(100))
+
 def main(n, ref="sun"):
     offset_momentum(BODIES[ref])
     report_energy()
-    advance(0.01, n)
+    advance(0.01, n, "positions_{}.csv".format(int(n)))
     report_energy()
-    new_csv_advance(0.01, n, "positions_{}.csv".format(int(n)))
+    end = time.time()
+    total_time = end - start
+    print('Execution time: {}'.format(total_time))
 
 
 if __name__ == "__main__":
