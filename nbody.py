@@ -112,7 +112,6 @@ def offset_momentum(ref, bodies=SYSTEM, px=0.0, py=0.0, pz=0.0):
     v[0] = px / m
     v[1] = py / m
     v[2] = pz / m
-print(BODIES)
 
 def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
     with open(filename, 'w', newline="") as table:
@@ -134,7 +133,7 @@ def main(n, ref="sun"):
     report_energy()
     advance(0.01, n)
     report_energy()
-    new_csv_advance(0.01, n, "positions.csv")
+    new_csv_advance(0.01, n, "positions_{}.csv".format(int(n)))
 
 
 if __name__ == "__main__":
