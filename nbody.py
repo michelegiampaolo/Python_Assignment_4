@@ -123,10 +123,10 @@ def new_csv_advance(dt, n, filename, bodies=BODIES, pairs=PAIRS, system=SYSTEM):
             for j in bodies:
                 position = [i + 1, j, str(bodies[j][0][0]), str(bodies[j][0][1]), str(bodies[j][0][2])]
                 writer.writerow(position)
-                print(position)
+                # print(position)
             advance(dt, n, system, pairs)
 
-new_csv_advance(0.01, 3, "positions.csv")
+# new_csv_advance(0.01, 3, "positions.csv")
 
 
 def main(n, ref="sun"):
